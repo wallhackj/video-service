@@ -3,10 +3,16 @@ services:
     image: mcr.microsoft.com/azure-storage/azurite
     hostname: azurite
     container_name: azr.blob-storage
+    networks:
+      - bridge
+    ports:
+      - "10000:10000"   # Expose port 10000 on the host machine
+      - "10001:10001"   # Expose port 10001 (Queue service)
     volumes:
       - ./containers/blob_storage/data:/data
     restart: always
-    ports:
-      - "10000:10000"
-      - "10001:10001"
-      - "10002:10002"
+    command: 'azurite --blobHost 0.0.0.0 --blobPort 10000 --queueHost 0.0.0.0 --queuePort 10001'
+
+networks:
+  bridge:
+    driver: bridge
