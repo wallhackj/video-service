@@ -1,0 +1,14 @@
+spring:
+  servlet:
+
+  cloud:
+    azure:
+      storage:
+        blob:
+          endpoint: http://localhost:10000/devstoreaccount1
+          accountName: devstoreaccount1
+          accountKey: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
+          containerName: azr.blob-storage
+          client:
+            logging:
+              level: BODY_AND_HEADERS

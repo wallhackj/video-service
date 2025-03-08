@@ -1,8 +1,12 @@
 services:
   blob-azr.blob-storage:
     image: mcr.microsoft.com/azure-storage/azurite
+    hostname: azurite
     container_name: azr.blob-storage
     volumes:
       - ./containers/blob_storage/data:/data
     restart: always
+    ports:
+      - "10000:10000"
+      - "10001:10001"
     command: 'azurite --blobHost 0.0.0.0 --blobPort 10000 --queueHost 0.0.0.0 --queuePort 10001'
