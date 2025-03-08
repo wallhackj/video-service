@@ -2,8 +2,8 @@ spring:
   cloud:
     azure:
       storage:
-        connection-string: "UseDevelopmentStorage=true"
-        containerName: azr.blob-storage
+        connection-string: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1;"
+        container-name: azr.blob-storage
         client:
           logging:
             level: BODY_AND_HEADERS

@@ -3,32 +3,29 @@ package com.example.test_video_service;
 import com.azure.storage.blob.BlobContainerAsyncClient;
 import com.azure.storage.blob.BlobServiceAsyncClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
-import jakarta.validation.constraints.NotBlank;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ConfigurationProperties(prefix = "spring.cloud.azure.storage")
-public class AzureConfigurationAndProperties {
-    @NotBlank
-    @Value("connection-string")
+public class AzureStorageBlobClientConfig {
+
+    @Value("${spring.cloud.azure.storage.connection-string}")
     private String connectionString;
 
-    @NotBlank
-    @Value("containerName")
+    @Value("${spring.cloud.azure.storage.container-name}")
     private String containerName;
 
     @Bean
     public BlobServiceAsyncClient blobServiceAsyncClient() {
+        System.out.println("Using connection string: " + connectionString); // Debug print
         return new BlobServiceClientBuilder()
                 .connectionString(connectionString)
                 .buildAsyncClient();
     }
 
     @Bean
-    public BlobContainerAsyncClient blobContainerAsyncClient() {
-        return blobServiceAsyncClient().getBlobContainerAsyncClient(containerName);
+    public BlobContainerAsyncClient blobContainerAsyncClient(BlobServiceAsyncClient blobServiceAsyncClient) {
+        return blobServiceAsyncClient.getBlobContainerAsyncClient(containerName);
     }
 }
