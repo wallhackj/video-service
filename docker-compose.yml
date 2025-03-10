@@ -6,8 +6,8 @@ services:
     networks:
       - bridge
     ports:
-      - "10000:10000"   # Expose port 10000 on the host machine
-      - "10001:10001"   # Expose port 10001 (Queue service)
+      - "10000:10000"
+      - "10001:10001"
     volumes:
       - ./containers/blob_storage/data:/data
     restart: always
