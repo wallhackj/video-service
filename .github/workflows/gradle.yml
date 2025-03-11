@@ -53,8 +53,8 @@ jobs:
       - name: Start Azurite Storage Emulator
         run: docker run -d --name azurite -p 10000:10000 mcr.microsoft.com/azure-storage/azurite
 
-      - name: Run tests
-        run: ./gradlew clean test -Dspring.aot.enabled=false --no-daemon -Djava.instrument.traceUsage
+      - name: Run tests with debugging
+        run: ./gradlew clean test --info --stacktrace -Dspring.aot.enabled=false --no-daemon -Djava.instrument.traceUsage
 
       - name: Build with Gradle Wrapper
         run: ./gradlew clean build -Dspring.aot.enabled=false --no-daemon -Djava.instrument.traceUsage
