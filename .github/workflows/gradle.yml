@@ -44,9 +44,14 @@ jobs:
       - name: Grant execute permissions to Gradle
         run: chmod +x gradlew
 
+      - name: Stop any running Azurite container
+        run: docker rm -f azurite || true
+
+      - name: Check for running process on port 10000
+        run: netstat -tulnp | grep 10000 || echo "Port 10000 is free"
+
       - name: Start Azurite Storage Emulator
-        run: |
-          docker run -d --name azurite -p 10000:10000 mcr.microsoft.com/azure-storage/azurite
+        run: docker run -d --name azurite -p 10000:10000 mcr.microsoft.com/azure-storage/azurite
 
       - name: Run tests
         run: ./gradlew clean test -Dspring.aot.enabled=false --no-daemon -Djava.instrument.traceUsage
