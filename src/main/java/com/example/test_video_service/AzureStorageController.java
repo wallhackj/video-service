@@ -15,18 +15,16 @@ public class AzureStorageController {
     }
 
     @GetMapping(value = "/{filename}")
-    public ResponseEntity<String> streamingVideo(@PathVariable @RequestParam String fileName) {
-        return ResponseEntity.ok()
-                .body(azureStorageService.getBlobUrl(fileName));
+    public ResponseEntity<String> streamingVideo(@PathVariable String fileName) {
+        return ResponseEntity.ok(azureStorageService.getBlobUrl(fileName));
     }
 
     @PostMapping(value = "/upload")
-    public ResponseEntity<String> uploadVideo(@RequestParam MultipartFile video) {
+    public ResponseEntity<String> uploadVideo(@RequestPart("video") MultipartFile video) {
         try {
             azureStorageService.save(video);
-        }catch (IOException e) {
-            return ResponseEntity.badRequest()
-                    .body("Missing file!");
+        } catch (IOException e) {
+            return ResponseEntity.badRequest().body("Missing file!");
         }
         return ResponseEntity.ok("File uploaded successfully");
     }
