@@ -37,7 +37,10 @@ jobs:
           restore-keys: |
             gradle-${{ runner.os }}
 
-      # Run tests automatically
+      - name: Grant execute permissions to Gradle
+        run: chmod +x gradlew
+
+    # Run tests automatically
       - name: Run tests
         run: ./gradlew clean test -Dspring.aot.enabled=false --no-daemon -Djava.instrument.traceUsage
 
