@@ -8,17 +8,21 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.web.multipart.MultipartFile;
 import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@Testcontainers
 @SpringBootTest
 class AzureStorageServiceTest {
 
@@ -27,18 +31,22 @@ class AzureStorageServiceTest {
 
     private static final String AZURITE_IMAGE = "mcr.microsoft.com/azure-storage/azurite";
     private static final GenericContainer<?> AZURITE_CONTAINER = new GenericContainer<>(AZURITE_IMAGE)
-            .withCommand("azurite-blob", "--blobHost", "0.0.0.0")
             .withExposedPorts(10000);
 
-    private static final String CONNECTION_STRING =
-            "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1;";
-
     private static BlobContainerClient blobContainerClient;
+    private static String CONNECTION_STRING;
     private static final String CONTAINER_NAME = RandomString.make().toLowerCase();
 
     @BeforeAll
     static void setup() {
         AZURITE_CONTAINER.start();
+
+        Integer mappedPort = AZURITE_CONTAINER.getMappedPort(10000);
+        CONNECTION_STRING =
+                "DefaultEndpointsProtocol=http;"
+                        + "AccountName=devstoreaccount1;"
+                        + "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;"
+                        + "BlobEndpoint=http://127.0.0.1:" + mappedPort + "/devstoreaccount1;"; // Use mapped port
 
         BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
                 .connectionString(CONNECTION_STRING)
@@ -59,7 +67,7 @@ class AzureStorageServiceTest {
         String blobContent = RandomString.make(50);
         var blobToUpload = createTextFile(blobName, blobContent);
 
-        storageService.save((MultipartFile) blobToUpload);
+        storageService.save(blobToUpload);
 
         assertTrue(blobContainerClient.getBlobClient(blobName).exists());
     }
@@ -70,7 +78,7 @@ class AzureStorageServiceTest {
         String blobContent = RandomString.make(50);
         var blobToUpload = createTextFile(blobName, blobContent);
 
-        storageService.save((MultipartFile) blobToUpload);
+        storageService.save(blobToUpload);
         var retrievedBlob = storageService.retrieve(blobName);
 
         assertEquals(blobContent, new String(retrievedBlob.getContentAsByteArray()));
@@ -82,17 +90,18 @@ class AzureStorageServiceTest {
         String blobContent = RandomString.make(50);
         var blobToUpload = createTextFile(blobName, blobContent);
 
-        storageService.save((MultipartFile) blobToUpload);
+        storageService.save(blobToUpload);
         storageService.delete(blobName);
 
         assertFalse(blobContainerClient.getBlobClient(blobName).exists());
     }
 
-    public static File createTextFile(String fileName, String content) throws IOException {
+    public static MultipartFile createTextFile(String fileName, String content) throws IOException {
         File tempFile = File.createTempFile(fileName, ".txt");
         try (FileWriter writer = new FileWriter(tempFile)) {
             writer.write(content);
         }
-        return tempFile;
+        return new MockMultipartFile(fileName, tempFile.getName(),
+                "text/plain", Files.readAllBytes(tempFile.toPath()));
     }
 }
