@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Player</title>
+</head>
+<body>
+<h2>Video Player</h2>
+
+<video id="videoPlayer" width="640" height="360" controls>
+  <source th:src="@{/files/download/{blobName}(blobName=${param.filename})}" type="video/mp4">
+  Your browser does not support the video tag.
+</video>
+
+<br>
+<a href="/files">Back to File List</a>
+</body>
+</html>

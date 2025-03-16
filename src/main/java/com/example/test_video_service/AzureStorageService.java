@@ -2,11 +2,14 @@ package com.example.test_video_service;
 
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
+import com.azure.storage.blob.models.BlobItem;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AzureStorageService {
@@ -22,9 +25,16 @@ public class AzureStorageService {
         blobClient.upload(file.getInputStream());
     }
 
-    public String getBlobUrl(String blobName) {
-        return "https://devstoreaccount1.blob.core.windows.net/" + blobContainerClient.getBlobContainerName() + "/" + blobName;
+    public List<String> listAllFiles() {
+        return blobContainerClient.listBlobs().stream().map(BlobItem::getName).collect(Collectors.toList());
     }
+
+//    public String getBlobUrl(String blobName) {
+//        OffsetDateTime expiryTime = OffsetDateTime.now().plusDays(1);
+//        BlobSasPermission blobSasPermission = new BlobSasPermission().setReadPermission(true);
+//        BlobServiceSasSignatureValues serviceSasValues = new BlobServiceSasSignatureValues(expiryTime, blobSasPermission);
+//        return "http://127.0.0.1:10000/devstoreaccount1/" + blobContainerClient.getBlobContainerName() + "/" + blobName + "?" + blobContainerClient.generateSas(serviceSasValues);
+//    }
 
     public InputStreamResource retrieve(String blobName) {
         var blobClient = getBlobClient(blobName);

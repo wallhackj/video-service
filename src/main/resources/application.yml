@@ -3,7 +3,31 @@ spring:
     azure:
       storage:
         connection-string: "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://localhost:10000/devstoreaccount1;"
-        container-name: azr.blob-storage
+        container-name: test1
         client:
           logging:
             level: BODY_AND_HEADERS
+  thymeleaf:
+    enabled: true
+    prefix: classpath:/templates/
+    suffix: .html
+    mvc:
+      view:
+        prefix: /templates/
+        suffix: .html
+    web:
+      resources:
+        static-locations: classpath:/static/
+    servlet:
+      multipart:
+        enabled: true
+        max-file-size: -1 # Adjust this as needed
+        max-request-size: -1  # Adjust this as needed
+        fileSizeThreshold: -1
+    server:
+      tomcat:
+        max-post-size: -1
+        max-swallow-size: -1
+    logging:
+      level:
+        org.springframework.web: DEBUG
