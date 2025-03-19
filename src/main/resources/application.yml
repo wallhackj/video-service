@@ -28,6 +28,17 @@ spring:
       tomcat:
         max-post-size: -1
         max-swallow-size: -1
-    logging:
-      level:
-        org.springframework.web: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+logging:
+  level:
+    org.springframework.web: DEBUG
