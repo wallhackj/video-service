@@ -55,7 +55,6 @@ services:
       - ./k6-test.js:/test.js
     environment:
       - K6_NO_USAGE_REPORT
-    command: [ "run", "/test.js" ]
     networks:
       - monitoring
 
