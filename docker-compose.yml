@@ -13,6 +13,48 @@ services:
     restart: always
     command: 'azurite --blobHost 0.0.0.0 --blobPort 10000 --queueHost 0.0.0.0 --queuePort 10001'
 
+  app:
+    build: .
+    container_name: spring_app
+    ports:
+      - "8081:8081"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    networks:
+      - monitoring
+
+  prometheus:
+    image: bitnami/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/docker/prometheus/prometheus.yml
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    volumes:
+      - ./grafana/datasources:/docker/grafana/datasources
+
+  k6:
+    image: loadimpact/k6
+    container_name: k6
+    ports:
+      - '6565:6565'
+    volumes:
+      - ./k6-test.js:/test.js
+    environment:
+      - K6_NO_USAGE_REPORT
+    command: [ "run", "/test.js" ]
+    networks:
+      - monitoring
+
 networks:
+  monitoring:
+    driver: bridge
   bridge:
     driver: bridge
