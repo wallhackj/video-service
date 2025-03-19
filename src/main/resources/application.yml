@@ -34,11 +34,15 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info,metrics,prometheus
+        include: "*"
   metrics:
     export:
       prometheus:
         enabled: true
+        collect-jvm-metrics: true
+    enable:
+      jvm: true
+      system: true
 
 logging:
   level:
