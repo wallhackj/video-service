@@ -25,6 +25,7 @@ spring:
         max-request-size: -1  # Adjust this as needed
         fileSizeThreshold: -1
     server:
+      port: 8080
       tomcat:
         max-post-size: -1
         max-swallow-size: -1
