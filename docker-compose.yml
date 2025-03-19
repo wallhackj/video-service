@@ -1,10 +1,8 @@
-version: '3.8'
-
 services:
-  blob-azr:
+  blob-azr.blob-storage:
     image: mcr.microsoft.com/azure-storage/azurite
-    container_name: azurite
     hostname: azurite
+    container_name: azr.blob-storage
     ports:
       - "10000:10000"
       - "10001:10001"
@@ -14,7 +12,6 @@ services:
     command: 'azurite --blobHost 0.0.0.0 --blobPort 10000 --queueHost 0.0.0.0 --queuePort 10001'
     networks:
       - monitoring
-
   app:
     build: .
     container_name: spring_app
@@ -33,9 +30,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
+      - ./prometheus/prometheus.yml:/docker/prometheus/prometheus.yml
     networks:
       - monitoring
 
@@ -46,21 +41,22 @@ services:
       - "3000:3000"
     restart: unless-stopped
     volumes:
-      - ./grafana/datasources:/etc/grafana/provisioning/datasources
-      - ./grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./grafana/datasources:/docker/grafana/datasources
     depends_on:
       - prometheus
     networks:
       - monitoring
 
   k6:
-    image: grafana/k6:latest
+    image: loadimpact/k6
     container_name: k6
+    ports:
+      - '6565:6565'
     volumes:
       - ./k6-test.js:/test.js
     environment:
       - K6_NO_USAGE_REPORT
-    command: ["run", "/test.js"]
+    command: [ "run", "/test.js" ]
     networks:
       - monitoring
 
