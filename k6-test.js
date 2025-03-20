@@ -7,7 +7,7 @@ export let options = {
 };
 
 export default function () {
-    let res = http.get('http://localhost:8081/files');
+    let res = http.get('http://app:8080/files');
     check(res, { 'status was 200': (r) => r.status == 200 });
     sleep(1);
 }
