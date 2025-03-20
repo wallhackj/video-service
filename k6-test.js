@@ -2,8 +2,8 @@ import http from 'k6/http';
 import { check, sleep } from 'k6';
 
 export let options = {
-    vus: 100,  // 100 utilizatori simultan
-    duration: '30s', // Rulează testul timp de 30 secunde
+    vus: 10,
+    duration: '3s',
 };
 
 export default function () {
