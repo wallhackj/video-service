@@ -50,12 +50,11 @@ services:
   k6:
     image: grafana/k6
     container_name: k6
-    ports:
-      - '6565:6565'
     volumes:
       - ./k6-test.js:/test.js
+    command: ["run", "/test.js"]
     environment:
-      - K6_NO_USAGE_REPORT
+      - K6_NO_USAGE_REPORT=1
     networks:
       - monitoring
 
