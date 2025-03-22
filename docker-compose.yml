@@ -47,17 +47,6 @@ services:
     networks:
       - monitoring
 
-  k6:
-    image: grafana/k6
-    container_name: k6
-    volumes:
-      - ./k6-test.js:/test.js
-    command: ["run", "/test.js"]
-    environment:
-      - K6_NO_USAGE_REPORT=1
-    networks:
-      - monitoring
-
 networks:
   monitoring:
     driver: bridge
