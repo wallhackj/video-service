@@ -53,8 +53,6 @@ public class AzureStorageBlobClientConfig {
         return containerClient;
     }
 
-
-
     @Bean
     public MultipartConfigElement multipartConfigElement() {
         MultipartConfigFactory factory = new MultipartConfigFactory();

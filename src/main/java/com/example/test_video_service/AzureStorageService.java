@@ -8,25 +8,44 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 @Service
 public class AzureStorageService {
     private final BlobContainerClient blobContainerClient;
+    private final ReentrantLock lock = new ReentrantLock();
 
     public AzureStorageService(BlobContainerClient blobContainerClient) {
         this.blobContainerClient = blobContainerClient;
     }
 
-    public void save(MultipartFile file) throws IOException {
+    public void save(MultipartFile file) {
         var blobName = file.getOriginalFilename();
-        var blobClient = blobContainerClient.getBlobClient(blobName);
-        blobClient.upload(file.getInputStream());
+        lock.lock();
+        try (InputStream inputStream = file.getInputStream()){
+            var blobClient = blobContainerClient.getBlobClient(blobName);
+            blobClient.upload(inputStream, true); //idempotent
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            lock.unlock();
+        }
     }
 
     public List<String> listAllFiles() {
-        return blobContainerClient.listBlobs().stream().map(BlobItem::getName).collect(Collectors.toList());
+        lock.lock();
+        try {
+            return blobContainerClient.listBlobs()
+                    .stream()
+                    .map(BlobItem::getName)
+                    .collect(Collectors.toList());
+        } finally {
+            lock.unlock();
+        }
+
     }
 
 //    public String getBlobUrl(String blobName) {
@@ -37,14 +56,24 @@ public class AzureStorageService {
 //    }
 
     public InputStreamResource retrieve(String blobName) {
-        var blobClient = getBlobClient(blobName);
-        var inputStream = blobClient.downloadContent().toStream();
-        return new InputStreamResource(inputStream);
+        lock.lock();
+        try {
+            var blobClient = getBlobClient(blobName);
+            var inputStream = blobClient.downloadContent().toStream();
+            return new InputStreamResource(inputStream);
+        } finally {
+            lock.unlock();
+        }
     }
 
     public void delete(String blobName) {
-        var blobClient = getBlobClient(blobName);
-        blobClient.delete();
+        lock.lock();
+        try {
+            var blobClient = getBlobClient(blobName);
+            blobClient.delete();
+        } finally {
+            lock.unlock();
+        }
     }
 
     private BlobClient getBlobClient(String blobName) {

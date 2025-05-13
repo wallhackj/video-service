@@ -8,5 +8,4 @@ public class TestVideoServiceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(TestVideoServiceApplication.class, args);
 	}
-
 }

@@ -8,13 +8,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 
 @Controller
 @RequestMapping("/files")
 public class FileController {
-
     private final AzureStorageService azureStorageService;
 
     public FileController(AzureStorageService azureStorageService) {
@@ -22,30 +22,38 @@ public class FileController {
     }
 
     @GetMapping
-    public String listFiles(Model model) {
-        List<String> files = azureStorageService.listAllFiles();
-        model.addAttribute("files", files);
-        return "file-list";
+    public CompletableFuture<String> listFiles(Model model) {
+        return CompletableFuture.supplyAsync(() -> {
+            List<String> files = azureStorageService.listAllFiles();
+            model.addAttribute("files", files);
+            return "file-list";
+        }, Executors.newVirtualThreadPerTaskExecutor());
     }
 
     @PostMapping("/upload")
-    public String uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
-        azureStorageService.save(file);
-        return "redirect:/files";
+    public CompletableFuture<String> uploadFile(@RequestParam("file") MultipartFile file) {
+        return CompletableFuture.supplyAsync(() -> {
+            azureStorageService.save(file);
+            return "redirect:/files";
+        }, Executors.newVirtualThreadPerTaskExecutor());
     }
 
     @GetMapping("/delete/{blobName}")
-    public String deleteFile(@PathVariable String blobName) {
-        azureStorageService.delete(blobName);
-        return "redirect:/files";
+    public CompletableFuture<String> deleteFile(@PathVariable String blobName) {
+        return CompletableFuture.supplyAsync(() -> {
+            azureStorageService.delete(blobName);
+            return "redirect:/files";
+        }, Executors.newVirtualThreadPerTaskExecutor());
     }
 
     @GetMapping("/download/{blobName}")
-    public ResponseEntity<InputStreamResource> streamFile(@PathVariable String blobName) {
-        InputStreamResource fileContent = azureStorageService.retrieve(blobName);
-        return ResponseEntity.ok()
-                .contentType(MediaType.valueOf("video/mp4"))
-                .body(fileContent);
+    public CompletableFuture<ResponseEntity<InputStreamResource>> streamFile(@PathVariable String blobName) {
+        return CompletableFuture.supplyAsync(() -> {
+            InputStreamResource fileContent = azureStorageService.retrieve(blobName);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.valueOf("video/mp4"))
+                    .body(fileContent);
+        }, Executors.newVirtualThreadPerTaskExecutor());
     }
 
     @GetMapping("/video-player")

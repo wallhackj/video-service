@@ -34,7 +34,6 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	//Monitoring
 	implementation 'io.micrometer:micrometer-registry-prometheus:1.14.3'
-
 }
 
 tasks.named('test') {
